@@ -1,7 +1,10 @@
-require github.com/aws/aws-lambda-go v1.23.0
-
-replace gopkg.in/yaml.v2 => gopkg.in/yaml.v2 v2.2.8
-
 module birthday-greeting
 
 go 1.16
+
+require (
+	github.com/aws/aws-lambda-go v1.31.1
+	github.com/aws/aws-sdk-go v1.44.7
+)
+
+require github.com/jmespath/go-jmespath v0.4.0 // indirect

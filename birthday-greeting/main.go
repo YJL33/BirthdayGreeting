@@ -8,17 +8,17 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+
+	"birthday-greeting/dao"
 )
 
 var (
-	// DefaultHTTPGetAddress Default Address
+	dynamoDBClient dynamodbiface.DynamoDBAPI
+
 	DefaultHTTPGetAddress = "https://checkip.amazonaws.com"
-
-	// ErrNoIP No IP found in response
-	ErrNoIP = errors.New("No IP in HTTP response")
-
-	// ErrNon200Response non 200 status code in response
-	ErrNon200Response = errors.New("Non 200 Response found")
+	ErrNoIP               = errors.New("No IP in HTTP response")
+	ErrNon200Response     = errors.New("Non 200 Response found")
 )
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -47,5 +47,6 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 }
 
 func main() {
+	dynamoDBClient = dao.NewDynamoDBClient()
 	lambda.Start(handler)
 }

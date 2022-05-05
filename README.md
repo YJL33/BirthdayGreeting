@@ -12,6 +12,20 @@ This is a sample template for sam-app - Below is a brief explanation of what we 
 └── template.yaml
 ```
 
+## Golang configuration
+Use Go Module (instead of GOPATH) to configure dependencies and packages.
+When the repository is newly pulled, make sure that:
+1. Dependencies written by 3rd party are properly imported/downloaded, and
+2. Dependencies written by 1st party are built into GOROOT.
+
+```shell
+$ export GO111MODULE="on"   # use Go Module
+$ go build ./...            # build the 1st party dependencies
+$ go mod download           # import the 3rd party libraries
+$ go mod tidy               # remove unused 3rd party libraries
+$ go run main.go
+```
+
 ## Requirements
 
 * AWS CLI already configured with Administrator permission
@@ -27,6 +41,8 @@ You may need the following for local testing.
 
 In this example we use the built-in `sam build` to build a docker image from a Dockerfile and then copy the source of your application inside the Docker image.  
 Read more about [SAM Build here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html) 
+
+Tip: use `sam build --debug` to see more details.
 
 ### Local development
 

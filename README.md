@@ -1,6 +1,6 @@
-# sam-app
+# Line Corp Offline Assessment
 
-This is a sample template for sam-app - Below is a brief explanation of what we have generated for you:
+This project is build using Amazon Lambda sam-app template, below is the basic structure:
 
 ```bash
 .

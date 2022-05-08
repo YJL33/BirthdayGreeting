@@ -5,7 +5,7 @@ This project is build using Amazon Lambda sam-app template, below is the basic s
 ```bash
 .
 ├── README.md                   <-- This instructions file
-├── hello-world                 <-- Source code for a lambda function
+├── birthday-greeting           <-- Source code for a lambda function
 │   ├── main.go                 <-- Lambda function code
 │   └── main_test.go            <-- Unit tests
 │   └── Dockerfile              <-- Dockerfile

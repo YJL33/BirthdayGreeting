@@ -1,8 +1,10 @@
 package dao
 
 import (
+	"fmt"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -30,21 +32,36 @@ func NewDynamoDBClient() dynamodbiface.DynamoDBAPI {
 	return dynamoDBInstance
 }
 
-// // GetItemByPrimaryKey simply gets item by primary key
-// func GetItemByPrimaryKey(dao dynamodbiface.DynamoDBAPI, tableName string, primaryKey string, primaryKeyValue string) (*dynamodb.GetItemOutput, error) {
-// 	fmt.Printf("getItem from table: %s, key: %s\n", tableName, primaryKeyValue)
-// 	provision, err := dao.GetItem(&dynamodb.GetItemInput{
-// 		Key: map[string]*dynamodb.AttributeValue{
-// 			primaryKey: {
-// 				S: aws.String(primaryKeyValue),
-// 			},
-// 		},
-// 		TableName: aws.String(tableName),
-// 	})
-// 	if err != nil {
-// 		fmt.Printf("failed to make getItems API call, %v\n", err)
-// 		return nil, err
-// 	}
+// QueryByGSI simply make a query to DynamoDB by GSI
+// below is the example of command line query
+// aws dynamodb query \
+//     --table-name user \
+//     --index-name birthMonth-birthDay-index \
+//     --key-condition-expression "birthDay = :birthDayAttr AND birthMonth = :birthMonthAttr" \
+//     --expression-attribute-values  '{":birthDayAttr":{"N":"8"}, ":birthMonthAttr":{"N":"8"}}'
+func QueryByGSI(dao dynamodbiface.DynamoDBAPI, tableName string, gsi string) (*dynamodb.QueryOutput, error) {
+	fmt.Printf("Query from table: %s, with GSI: %s\n", tableName, gsi)
+	currentTime := time.Now()
+	MMDDYYYY := currentTime.Format("01-02-2006")
+	month := MMDDYYYY[:2]
+	date := MMDDYYYY[3:5]
+	results, err := dao.Query(&dynamodb.QueryInput{
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":birthMonthAttr": {
+				N: aws.String(month),
+			},
+			":birthDayAttr": {
+				N: aws.String(date),
+			},
+		},
+		IndexName:              &gsi,
+		KeyConditionExpression: aws.String("birthDay = :birthDayAttr AND birthMonth = :birthMonthAttr"),
+		TableName:              aws.String(tableName),
+	})
+	if err != nil {
+		fmt.Printf("failed to make Query on AWS DynamoDB, %v\n", err)
+		return nil, err
+	}
 
-// 	return provision, nil
-// }
+	return results, nil
+}

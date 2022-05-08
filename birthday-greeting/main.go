@@ -40,8 +40,15 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, ErrNoIP
 	}
 
+	res, err := dao.QueryByGSI(dynamoDBClient, "user", "birthMonth-birthDay-index")
+	if err != nil {
+		fmt.Printf("failed to QueryByGSI, %v\n", err)
+		return events.APIGatewayProxyResponse{}, err
+	}
+	fmt.Sprintf("log?, %v", res.String())
+
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf("Hello, %v", string(ip)),
+		Body:       fmt.Sprintf("Hello, %v, %v", string(ip), res.String()),
 		StatusCode: 200,
 	}, nil
 }

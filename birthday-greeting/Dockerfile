@@ -8,6 +8,8 @@ WORKDIR /go/src
 COPY go.mod go.sum main.go ./
 COPY dao ./dao
 COPY types ./types
+COPY utils ./utils
+
 RUN export GO111MODULE="on"
 RUN go build ./...
 RUN go mod tidy

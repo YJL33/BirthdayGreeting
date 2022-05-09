@@ -9,3 +9,8 @@ type User struct {
 	LastName    string `json:"LastName"`
 	Gender      string `json:"Gender"`
 }
+
+type BirthdayGreeting struct {
+	Title   string `json:"Title"`
+	Content string `json:"Content"`
+}

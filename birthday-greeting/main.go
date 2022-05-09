@@ -14,6 +14,7 @@ import (
 
 	"birthday-greeting/dao"
 	"birthday-greeting/types"
+	"birthday-greeting/utils"
 )
 
 var (
@@ -52,17 +53,18 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	// Marshal to JSON object
-	// e.g. dynamoDB item -> user class -> Marshal to json format
-	var userList []types.User
+	// e.g. dynamoDB item -> user -> create greeting message -> Marshal to json format
+	var greetingList []types.BirthdayGreeting
 	for _, item := range res.Items {
 		user := types.User{}
 		dynamodbattribute.UnmarshalMap(item, &user)
-		userList = append(userList, user)
+		greeting := utils.CraftBirthdayGreetingForUser(user)
+		greetingList = append(greetingList, greeting)
 	}
-	usersInJsonFmt, _ := json.Marshal(userList)
+	greetingsInJsonFmt, _ := json.Marshal(greetingList)
 
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf(string(usersInJsonFmt)), // put json here
+		Body:       fmt.Sprintf(string(greetingsInJsonFmt)), // put json here
 		StatusCode: 200,
 	}, nil
 }

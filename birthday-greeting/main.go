@@ -1,54 +1,63 @@
 package main
 
 import (
-	"errors"
+	"encoding/json"
+	// "errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 
 	"birthday-greeting/dao"
+	"birthday-greeting/types"
 )
 
 var (
 	dynamoDBClient dynamodbiface.DynamoDBAPI
 
-	DefaultHTTPGetAddress = "https://checkip.amazonaws.com"
-	ErrNoIP               = errors.New("No IP in HTTP response")
-	ErrNon200Response     = errors.New("Non 200 Response found")
+	TableName            = "user"
+	GlobalSecondaryIndex = "birthMonth-birthDay-index"
 )
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	resp, err := http.Get(DefaultHTTPGetAddress)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
 
-	if resp.StatusCode != 200 {
-		return events.APIGatewayProxyResponse{}, ErrNon200Response
-	}
+	// resp, err := http.Get(DefaultHTTPGetAddress)
+	// if err != nil {
+	// 	return events.APIGatewayProxyResponse{}, err
+	// }
 
-	ip, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
+	// if resp.StatusCode != 200 {
+	// 	return events.APIGatewayProxyResponse{}, ErrNon200Response
+	// }
 
-	if len(ip) == 0 {
-		return events.APIGatewayProxyResponse{}, ErrNoIP
-	}
+	// ip, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return events.APIGatewayProxyResponse{}, err
+	// }
 
-	res, err := dao.QueryByGSI(dynamoDBClient, "user", "birthMonth-birthDay-index")
+	// if len(ip) == 0 {
+	// 	return events.APIGatewayProxyResponse{}, ErrNoIP
+	// }
+
+	res, err := dao.QueryByGSI(dynamoDBClient, TableName, GlobalSecondaryIndex)
 	if err != nil {
 		fmt.Printf("failed to QueryByGSI, %v\n", err)
 		return events.APIGatewayProxyResponse{}, err
 	}
-	fmt.Sprintf("log?, %v", res.String())
+	// dynamoDB item -> user class -> Marshal to json format
+	var userList []types.User
+	for _, item := range res.Items {
+		user := types.User{}
+		dynamodbattribute.UnmarshalMap(item, &user)
+		userList = append(userList, user)
+	}
+	usersInJsonFmt, _ := json.Marshal(userList)
 
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf("Hello, %v, %v", string(ip), res.String()),
+		// put json here
+		Body:       fmt.Sprintf(string(usersInJsonFmt)),
 		StatusCode: 200,
 	}, nil
 }

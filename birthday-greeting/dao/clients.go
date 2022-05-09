@@ -33,12 +33,6 @@ func NewDynamoDBClient() dynamodbiface.DynamoDBAPI {
 }
 
 // QueryByGSI simply make a query to DynamoDB by GSI
-// below is the example of command line query
-// aws dynamodb query \
-//     --table-name user \
-//     --index-name birthMonth-birthDay-index \
-//     --key-condition-expression "birthDay = :birthDayAttr AND birthMonth = :birthMonthAttr" \
-//     --expression-attribute-values  '{":birthDayAttr":{"N":"8"}, ":birthMonthAttr":{"N":"8"}}'
 func QueryByGSI(dao dynamodbiface.DynamoDBAPI, tableName string, gsi string) (*dynamodb.QueryOutput, error) {
 	fmt.Printf("Query from table: %s, with GSI: %s\n", tableName, gsi)
 	currentTime := time.Now()

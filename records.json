@@ -1,7 +1,9 @@
 [
     {
         "dateOfBirth": "1985/8/8",
-        "birthday":"8/8",
+        "birthDay": 8,
+        "birthMonth": 8,
+        "birthYear": 1985,
         "email": "robert.yen@linecorp.com",
         "firstName": "Robert",
         "gender": "M",
@@ -10,7 +12,9 @@
     },
     {
         "dateOfBirth": "1990/10/10",
-        "birthday":"10/10",
+        "birthDay": 10,
+        "birthMonth": 10,
+        "birthYear": 1990,
         "email": "cid.change@linecorp.com",
         "firstName": "Cid",
         "gender": "M",
@@ -19,7 +23,9 @@
     },
     {
         "dateOfBirth": "1993/4/5",
-        "birthday":"4/5",
+        "birthDay": 8,
+        "birthMonth": 5,
+        "birthYear": 1993,
         "email": "miki.lai@linecorp.com",
         "firstName": "Miki",
         "gender": "F",
@@ -28,7 +34,9 @@
     },
     {
         "dateOfBirth": "1993/8/8",
-        "birthday":"8/8",
+        "birthDay": 8,
+        "birthMonth": 8,
+        "birthYear": 1993,
         "email": "sherry.chen@linecorp.com",
         "firstName": "Sherry",
         "gender": "F",
@@ -37,7 +45,9 @@
     },
     {
         "dateOfBirth": "1950/12/22",
-        "birthday":"12/22",
+        "birthDay": 22,
+        "birthMonth": 12,
+        "birthYear": 1950,
         "email": "peter.wang@linecorp.com",
         "firstName": "Peter",
         "gender": "M",

@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	// "errors"
+	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -17,36 +19,40 @@ import (
 var (
 	dynamoDBClient dynamodbiface.DynamoDBAPI
 
-	TableName            = "user"
-	GlobalSecondaryIndex = "birthMonth-birthDay-index"
+	DefaultHTTPGetAddress = "https://checkip.amazonaws.com"
+	ErrNoIP               = errors.New("No IP in HTTP response")
+	ErrNon200Response     = errors.New("Non 200 Response found")
+	TableName             = "user"
+	GlobalSecondaryIndex  = "birthMonth-birthDay-index"
 )
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
-	// resp, err := http.Get(DefaultHTTPGetAddress)
-	// if err != nil {
-	// 	return events.APIGatewayProxyResponse{}, err
-	// }
+	// validate the APIGateway Request
+	resp, err := http.Get(DefaultHTTPGetAddress)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+	if resp.StatusCode != 200 {
+		return events.APIGatewayProxyResponse{}, ErrNon200Response
+	}
+	ip, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+	if len(ip) == 0 {
+		return events.APIGatewayProxyResponse{}, ErrNoIP
+	}
 
-	// if resp.StatusCode != 200 {
-	// 	return events.APIGatewayProxyResponse{}, ErrNon200Response
-	// }
-
-	// ip, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	return events.APIGatewayProxyResponse{}, err
-	// }
-
-	// if len(ip) == 0 {
-	// 	return events.APIGatewayProxyResponse{}, ErrNoIP
-	// }
-
+	// Make the query to Database
 	res, err := dao.QueryByGSI(dynamoDBClient, TableName, GlobalSecondaryIndex)
 	if err != nil {
 		fmt.Printf("failed to QueryByGSI, %v\n", err)
 		return events.APIGatewayProxyResponse{}, err
 	}
-	// dynamoDB item -> user class -> Marshal to json format
+
+	// Marshal to JSON object
+	// e.g. dynamoDB item -> user class -> Marshal to json format
 	var userList []types.User
 	for _, item := range res.Items {
 		user := types.User{}
@@ -56,13 +62,12 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	usersInJsonFmt, _ := json.Marshal(userList)
 
 	return events.APIGatewayProxyResponse{
-		// put json here
-		Body:       fmt.Sprintf(string(usersInJsonFmt)),
+		Body:       fmt.Sprintf(string(usersInJsonFmt)), // put json here
 		StatusCode: 200,
 	}, nil
 }
 
 func main() {
-	dynamoDBClient = dao.NewDynamoDBClient()
+	dynamoDBClient = dao.NewDynamoDBClient() // singleton
 	lambda.Start(handler)
 }

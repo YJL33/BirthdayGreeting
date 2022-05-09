@@ -30,19 +30,10 @@ var (
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	// validate the APIGateway Request
-	resp, err := http.Get(DefaultHTTPGetAddress)
+	apigatewayResp, err := validateAPIGatewayRequest()
 	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-	if resp.StatusCode != 200 {
-		return events.APIGatewayProxyResponse{}, ErrNon200Response
-	}
-	ip, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-	if len(ip) == 0 {
-		return events.APIGatewayProxyResponse{}, ErrNoIP
+		fmt.Printf("invalid APIGatewayProxyRequest, %v\n", err)
+		return apigatewayResp, err
 	}
 
 	// Make the query to Database
@@ -67,6 +58,24 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		Body:       fmt.Sprintf(string(greetingsInJsonFmt)), // put json here
 		StatusCode: 200,
 	}, nil
+}
+
+func validateAPIGatewayRequest() (events.APIGatewayProxyResponse, error) {
+	resp, err := http.Get(DefaultHTTPGetAddress)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+	if resp.StatusCode != 200 {
+		return events.APIGatewayProxyResponse{}, ErrNon200Response
+	}
+	ip, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+	if len(ip) == 0 {
+		return events.APIGatewayProxyResponse{}, ErrNoIP
+	}
+	return events.APIGatewayProxyResponse{}, err
 }
 
 func main() {

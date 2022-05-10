@@ -49,7 +49,11 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	for _, item := range res.Items {
 		user := types.User{}
 		dynamodbattribute.UnmarshalMap(item, &user)
-		greeting := utils.CraftBirthdayGreetingForUser(user)
+		greeting, err := utils.CraftBirthdayGreetingForUser(user)
+		if err != nil {
+			fmt.Printf("Failed to craft birthday greeting, ignore this user: %v\n", err)
+			continue
+		}
 		greetingList = append(greetingList, greeting)
 	}
 	greetingsInJsonFmt, _ := json.Marshal(greetingList)

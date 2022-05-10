@@ -25,7 +25,7 @@ func TestCraftBirthdayGreetingForUser(t *testing.T) {
 		{
 			name: "Success",
 			args: args{
-				user:               types.User{FirstName: "John", Gender: "M"},
+				user:               types.User{FirstName: "John", Gender: "M", DateOfBirth: "5/9/1943"},
 				greetingPictureURL: GreetingPictureURL,
 			},
 			want: types.BirthdayGreeting{
@@ -38,7 +38,7 @@ func TestCraftBirthdayGreetingForUser(t *testing.T) {
 		{
 			name: "Invalid FirstName",
 			args: args{
-				user:               types.User{FirstName: "", Gender: "F"},
+				user:               types.User{FirstName: "", Gender: "F", DateOfBirth: "5/9/1943"},
 				greetingPictureURL: "somewhere from S3",
 			},
 			want:    types.BirthdayGreeting{},
@@ -47,7 +47,16 @@ func TestCraftBirthdayGreetingForUser(t *testing.T) {
 		{
 			name: "Invalid URL",
 			args: args{
-				user:               types.User{FirstName: "Ellen", Gender: "T"},
+				user:               types.User{FirstName: "Ellen", Gender: "T", DateOfBirth: "5/9/1943"},
+				greetingPictureURL: "",
+			},
+			want:    types.BirthdayGreeting{},
+			wantErr: true,
+		},
+		{
+			name: "User too young",
+			args: args{
+				user:               types.User{FirstName: "Ellen", Gender: "T", DateOfBirth: "5/9/2000"},
 				greetingPictureURL: "",
 			},
 			want:    types.BirthdayGreeting{},

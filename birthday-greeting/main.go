@@ -67,7 +67,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	greetingsInJsonFmt, _ := json.Marshal(greetingList)
 
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf(string(greetingsInJsonFmt)), // put json here
+		Body:       fmt.Sprintln(string(greetingsInJsonFmt)), // put json here, don't use Sprintf on URLs
 		StatusCode: 200,
 	}, nil
 }

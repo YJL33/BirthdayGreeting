@@ -11,6 +11,6 @@ type User struct {
 }
 
 type BirthdayGreeting struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	Title   string `xml:"title"`
+	Content string `xml:"content"`
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -43,8 +43,8 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	// Marshal to JSON object
-	// e.g. dynamoDB item -> user -> create greeting message -> Marshal to json format
+	// Marshal to XML object
+	// e.g. dynamoDB item -> user -> create greeting message -> Marshal to XML format
 	var greetingList []types.BirthdayGreeting
 	for _, item := range res.Items {
 		user := types.User{}
@@ -56,10 +56,10 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		}
 		greetingList = append(greetingList, greeting)
 	}
-	greetingsInJsonFmt, _ := json.Marshal(greetingList)
+	greetingsInXMLFmt, _ := xml.Marshal(greetingList)
 
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf(string(greetingsInJsonFmt)), // put json here
+		Body:       fmt.Sprintf(string(greetingsInXMLFmt)), // put XML here
 		StatusCode: 200,
 	}, nil
 }

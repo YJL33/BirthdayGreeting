@@ -2,15 +2,15 @@ package types
 
 // User is a struct representing user
 type User struct {
-	UserID      string `json:"ID"`
-	DateOfBirth string `json:"DateOfBirth"`
-	Email       string `json:"Email"`
-	FirstName   string `json:"FirstName"`
-	LastName    string `json:"LastName"`
-	Gender      string `json:"Gender"`
+	UserID      string `json:"id"`
+	DateOfBirth string `json:"dateOfBirth"`
+	Email       string `json:"email"`
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	Gender      string `json:"gender"`
 }
 
 type BirthdayGreeting struct {
-	Title   string `json:"Title"`
-	Content string `json:"Content"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }

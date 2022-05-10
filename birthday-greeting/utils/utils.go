@@ -7,14 +7,19 @@ import (
 	"birthday-greeting/types"
 )
 
+var (
+	GreetingTitle = "Subject: Happy birthday!"
+)
+
 func CraftBirthdayGreetingForUser(user types.User) (types.BirthdayGreeting, error) {
-	if user.FirstName == "" {
+	if user.FirstName == "" || user.LastName == "" {
 		userInJson, _ := json.Marshal(user)
-		return types.BirthdayGreeting{}, errors.New("FirstName is missing:" + string(userInJson))
+		return types.BirthdayGreeting{}, errors.New("FirstName or LastName is missing:" + string(userInJson))
 	}
 
+	greetingContent := "Happy birthday, dear " + user.LastName + ", " + user.FirstName + "!"
 	return types.BirthdayGreeting{
-		Title:   "Subject: Happy birthday!",
-		Content: "Happy birthday, dear " + user.FirstName + "!",
+		Title:   GreetingTitle,
+		Content: greetingContent,
 	}, nil
 }

@@ -25,6 +25,8 @@ var (
 	ErrNon200Response     = errors.New("Non 200 Response found")
 	TableName             = "user"
 	GlobalSecondaryIndex  = "birthMonth-birthDay-index"
+	S3BucketName          = "line-assessment-public-bucket"
+	S3ObjectKey           = "happy_birthday.jpg"
 )
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -43,13 +45,19 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
+	greetingPictureURL, err := dao.GetObjectURL(S3BucketName, S3ObjectKey)
+	if err != nil {
+		fmt.Printf("failed to get presignedURL from S3, %v\n", err)
+		return events.APIGatewayProxyResponse{}, err
+	}
+
 	// Marshal to JSON object
 	// e.g. dynamoDB item -> user -> create greeting message -> Marshal to json format
 	var greetingList []types.BirthdayGreeting
 	for _, item := range res.Items {
 		user := types.User{}
 		dynamodbattribute.UnmarshalMap(item, &user)
-		greeting, err := utils.CraftBirthdayGreetingForUser(user)
+		greeting, err := utils.CraftBirthdayGreetingForUser(user, greetingPictureURL)
 		if err != nil {
 			fmt.Printf("Failed to craft birthday greeting, ignore this user: %v\n", err)
 			continue

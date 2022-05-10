@@ -13,4 +13,5 @@ type User struct {
 type BirthdayGreeting struct {
 	Title   string `json:"Title"`
 	Content string `json:"Content"`
+	Picture string `json:"Picture"`
 }

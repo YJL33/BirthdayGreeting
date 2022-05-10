@@ -22,11 +22,12 @@ func TestCraftBirthdayGreetingForUser(t *testing.T) {
 			args: args{
 				user: types.User{
 					FirstName: "John",
+					Gender:    "M",
 				},
 			},
 			want: types.BirthdayGreeting{
-				Title:   "Subject: Happy birthday!",
-				Content: "Happy birthday, dear John!",
+				Title:   GreetingTitle,
+				Content: "Happy birthday, dear John!" + MessageForSpecialDiscount + DiscountItemForMale,
 			},
 			wantErr: false,
 		},
@@ -35,6 +36,18 @@ func TestCraftBirthdayGreetingForUser(t *testing.T) {
 			args: args{
 				user: types.User{
 					FirstName: "",
+					Gender:    "F",
+				},
+			},
+			want:    types.BirthdayGreeting{},
+			wantErr: true,
+		},
+		{
+			name: "Non-binary Gender",
+			args: args{
+				user: types.User{
+					FirstName: "Ellen",
+					Gender:    "T",
 				},
 			},
 			want:    types.BirthdayGreeting{},

@@ -1,98 +1,62 @@
 package dao
 
 import (
-	"errors"
-	"fmt"
+	"birthday-greeting/types"
+	"database/sql"
 	"reflect"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+	_ "github.com/go-sql-driver/mysql"
 )
 
-var (
-	mockOutput       *dynamodb.QueryOutput
-	defaultTableName string
-	defaultGSI       string
-)
-
-func init() {
-	mockOutput = &dynamodb.QueryOutput{}
-	defaultTableName = "user"
-	defaultGSI = "birthMonth-birthDay-index"
-}
-
-type mockDynamoDBClient struct {
-	dynamodbiface.DynamoDBAPI
-}
-
-func (m *mockDynamoDBClient) Query(input *dynamodb.QueryInput) (*dynamodb.QueryOutput, error) {
-	if *input.TableName != defaultTableName || *input.IndexName != defaultGSI {
-		fmt.Printf("TableName:, %v\n", *input.TableName)
-		fmt.Printf("defaultTableName:, %v\n", defaultTableName)
-		fmt.Printf("IndexName:, %v\n", *input.IndexName)
-		fmt.Printf("defaultGSI:, %v\n", defaultGSI)
-		return nil, errors.New("invalid tableName or GSI")
-	}
-	return mockOutput, nil
-}
-
-func TestQueryByGSI(t *testing.T) {
-	// Setup Test
-	mockSvc := &mockDynamoDBClient{}
-
+func TestGetRDSDB(t *testing.T) {
 	type args struct {
-		dao       dynamodbiface.DynamoDBAPI
-		tableName string
-		gsi       string
+		dbName string
 	}
-
 	tests := []struct {
 		name    string
 		args    args
-		want    *dynamodb.QueryOutput
+		want    *sql.DB
 		wantErr bool
 	}{
-		{
-			name: "Success",
-			args: args{
-				dao:       mockSvc,
-				tableName: defaultTableName,
-				gsi:       defaultGSI,
-			},
-			want:    mockOutput,
-			wantErr: false,
-		},
-		{
-			name: "Invalid table name",
-			args: args{
-				dao:       mockSvc,
-				tableName: "xxxx",
-				gsi:       defaultGSI,
-			},
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name: "Invalid GSI name",
-			args: args{
-				dao:       mockSvc,
-				tableName: defaultTableName,
-				gsi:       "xxxx",
-			},
-			want:    nil,
-			wantErr: true,
-		},
+		// Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := QueryByGSI(tt.args.dao, tt.args.tableName, tt.args.gsi)
+			got, err := GetRDSDB(tt.args.dbName)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("QueryByGSI() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("GetRDSDB() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("QueryByGSI() = %v, want %v", got, tt.want)
+				t.Errorf("GetRDSDB() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetUsersToGreet(t *testing.T) {
+	type args struct {
+		db        *sql.DB
+		tableName string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []types.BirthdayGreeting
+		wantErr bool
+	}{
+		// Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetUsersToGreet(tt.args.db, tt.args.tableName)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetUsersToGreet() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetUsersToGreet() = %v, want %v", got, tt.want)
 			}
 		})
 	}

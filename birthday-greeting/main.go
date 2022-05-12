@@ -9,22 +9,16 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 
 	"birthday-greeting/dao"
-	"birthday-greeting/types"
-	"birthday-greeting/utils"
 )
 
 var (
-	dynamoDBClient dynamodbiface.DynamoDBAPI
-
 	DefaultHTTPGetAddress = "https://checkip.amazonaws.com"
 	ErrNoIP               = errors.New("No IP in HTTP response")
 	ErrNon200Response     = errors.New("Non 200 Response found")
+	DBName                = "userDB"
 	TableName             = "user"
-	GlobalSecondaryIndex  = "birthMonth-birthDay-index"
 )
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -36,27 +30,21 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return apigatewayResp, err
 	}
 
-	// Make the query to Database
-	res, err := dao.QueryByGSI(dynamoDBClient, TableName, GlobalSecondaryIndex)
+	// connect to DB
+	rdsDB, err := dao.GetRDSDB(DBName)
 	if err != nil {
-		fmt.Printf("failed to QueryByGSI, %v\n", err)
+		fmt.Printf("failed to get RDS DB, %v\n", err)
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	// Marshal to JSON object
-	// e.g. dynamoDB item -> user -> create greeting message -> Marshal to json format
-	var greetingList []types.BirthdayGreeting
-	for _, item := range res.Items {
-		user := types.User{}
-		dynamodbattribute.UnmarshalMap(item, &user)
-		greeting, err := utils.CraftBirthdayGreetingForUser(user)
-		if err != nil {
-			fmt.Printf("Failed to craft birthday greeting, ignore this user: %v\n", err)
-			continue
-		}
-		greetingList = append(greetingList, greeting)
+	// Get the users to greet
+	greetingList, err := dao.GetUsersToGreet(rdsDB, TableName)
+	if err != nil {
+		fmt.Printf("failed to get Users to Greet, %v\n", err)
+		return events.APIGatewayProxyResponse{}, err
 	}
 	greetingsInJsonFmt, _ := json.Marshal(greetingList)
+	fmt.Printf("jsonFmt: %v\n", string(greetingsInJsonFmt))
 
 	return events.APIGatewayProxyResponse{
 		Body:       fmt.Sprintf(string(greetingsInJsonFmt)), // put json here
@@ -83,6 +71,5 @@ func validateAPIGatewayRequest() (events.APIGatewayProxyResponse, error) {
 }
 
 func main() {
-	dynamoDBClient = dao.NewDynamoDBClient() // singleton
 	lambda.Start(handler)
 }

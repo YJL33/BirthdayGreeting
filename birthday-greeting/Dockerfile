@@ -8,7 +8,6 @@ WORKDIR /go/src
 COPY . .
 
 RUN export GO111MODULE="on"
-RUN go build ./...
 RUN go mod tidy
 RUN go mod download
 

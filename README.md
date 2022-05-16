@@ -1,4 +1,4 @@
-# Line Corp Offline Assessment
+# Testing Project
 
 This project is build using Amazon Lambda sam-app template, below is the basic structure:
 
